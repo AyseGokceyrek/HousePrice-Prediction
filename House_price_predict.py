@@ -1,7 +1,10 @@
 #############################################
 # İş Problemi / Business Problem
 #############################################
-# Ev Fiyat Tahmin Modeli
+# House Price Prediction
+# A machine learning project is desired that involves using a dataset containing features of each house and their respective prices to predict prices for different types of houses.
+
+
 # Her bir eve ait özelliklerin ve ev fiyatlarının bulunduğu veriseti kullanılarak, farklı tipteki evlerin fiyatlarına ilişkin bir makine öğrenmesi projesi
 # gerçekleştirilmek istenmektedir
 
@@ -9,6 +12,11 @@
 #############################################
 # Veri Seti Hikayesi / Dataset Story
 #############################################
+# Ask a home buyer to describe their dream house, and they probably won't begin with the height of the basement ceiling or the proximity to an east-west railroad. 
+# But this playground competition's dataset proves that much more influences price negotiations than the number of bedrooms or a white-picket fence.
+# With 79 explanatory variables describing (almost) every aspect of residential homes in Ames, Iowa, this competition challenges you to predict the final price of each home.
+
+
 # Ames, Lowa’daki konut evlerinden oluşan bu veri seti içerisinde 79 açıklayıcı değişken bulunduruyor. Kaggle üzerinde bir yarışması
 # da bulunan projenin veri seti ve yarışma sayfasına aşağıdaki linkten ulaşabilirsiniz. Veri seti bir kaggle yarışmasına ait
 # olduğundan dolayı train ve test olmak üzere iki farklı csv dosyası vardır. Test veri setinde ev fiyatları boş bırakılmış olup, bu
@@ -50,14 +58,14 @@ pd.set_option('display.width', None)
 pd.set_option('display.float_format', lambda x: '%.3f' % x)
 
 #############################################
-# PROJE GÖREVLERİ / PROJECT TASKS
+# PROJECT STEPS
 #############################################
 
 #############################################
-# GÖREV 1: Keşifçi Veri Analizi / EDA
+# EDA
 #############################################
 
-# Adım 1: Train ve Test veri setlerini okutup birleştiriniz. Birleştirdiğiniz veri üzerinden ilerleyiniz.
+# Train ve Test veri setlerini okutup birleştiriniz. Birleştirdiğiniz veri üzerinden ilerleyiniz.
 test = pd.read_csv("C:/Users/Lenovo/PycharmProjects/datasets/HousePrice/test.csv")
 train = pd.read_csv("C:/Users/Lenovo/PycharmProjects/datasets/HousePrice/train.csv")
 test.head()
@@ -89,7 +97,7 @@ def df_summary(df):
 df_summary(df)
 
 
-# Adım 2: Numerik ve kategorik değişkenleri yakalayınız.
+# Numerik ve kategorik değişkenleri yakalayınız.
 def grab_col_names(dataframe, cat_th=10, car_th=20):
     """
 
@@ -153,7 +161,7 @@ def grab_col_names(dataframe, cat_th=10, car_th=20):
 cat_cols, num_cols, cat_but_car = grab_col_names(df)
 
 
-# Adım 3: Gerekli düzenlemeleri yapınız. (Tip hatası olan değişkenler gibi)
+# Gerekli düzenlemeleri yapınız. (Tip hatası olan değişkenler gibi)
 df[cat_cols].dtypes
 df[num_cols].dtypes
 df[cat_but_car].dtypes
@@ -173,8 +181,6 @@ for col in cat_cols:
     cat_summary(df, col)
 
 
-# Numerik değişken
-
 def num_summary(dataframe, numerical_col, plot=False):
     quantiles = [0.05, 0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90, 0.95, 0.99]
     print(dataframe[numerical_col].describe(quantiles).T)
@@ -191,7 +197,7 @@ for col in num_cols:
 
 
 
-# Adım 5: Kategorik değişkenler ile hedef değişken incelemesini yapınız.
+# Kategorik değişkenler ile hedef değişken incelemesini yapınız.
 
 def target_summary_cat(dataframe, target, categorical_col):
     print(pd.DataFrame({"TARGET_MEAN": dataframe.groupby(categorical_col)[target].mean()}), end="\n\n\n")
@@ -209,7 +215,7 @@ np.log1p(df["SalePrice"]).hist(bins=50)
 plt.show()
 
 ######################################
-#Korelasyon Analizi (Analysis of Correlation)
+# Analysis of Correlation
 ######################################
 corr = df[num_cols].corr()
 corr
@@ -237,10 +243,10 @@ high_correlated_cols(df, plot=False)
 
 
 #############################################
-# GÖREV 2: Feature Engineering
+# Feature Engineering
 #############################################
 
-# Adım 6: Aykırı gözlem var mı inceleyiniz.
+# Aykırı gözlem var mı inceleyiniz.
 
 def outlier_thresholds(dataframe, col_name, q1=0.05, q3=0.95):
     quartile1 = dataframe[col_name].quantile(q1)
@@ -279,7 +285,7 @@ for col in num_cols:
 for i in num_cols:
     print(i, check_outlier(df,i))
 
-# Adım 7: Eksik gözlem var mı inceleyiniz.
+# Eksik gözlem var mı inceleyiniz.
 
 def missing_values_table(dataframe, na_name=False):  #eksik değerlerin isimlerine erişmek istersek True
     na_columns = [col for col in dataframe.columns if dataframe[col].isnull().sum() > 0]
@@ -362,7 +368,7 @@ def quick_missing_imp(data, num_method="median", cat_length=20, target="SalePric
 df = quick_missing_imp(df, num_method="median", cat_length=17)
 
 
-# Adım 2: Rare Encoder uygulayınız.
+# Rare Encoder
 
 # Kategorik sütunların incelenmesi
 def rare_analyser(dataframe, target, cat_cols):
@@ -375,7 +381,7 @@ def rare_analyser(dataframe, target, cat_cols):
 
 rare_analyser(df, "SalePrice", cat_cols)
 
-# NAdir sınıfların saptanması
+# Nadir sınıfların saptanması
 def rare_encoder(dataframe, rare_perc):
     temp_df = dataframe.copy()
 
@@ -392,7 +398,7 @@ def rare_encoder(dataframe, rare_perc):
 
 rare_encoder(df, 0.01)
 
-# Adım 3: Yeni değişkenler oluşturunuz.
+# Feature Engineernig
 
 df["NEW_1st*GrLiv"] = df["1stFlrSF"] * df["GrLivArea"]
 
@@ -454,7 +460,7 @@ drop_list = ["Street", "Alley", "LandContour", "Utilities", "LandSlope","Heating
 df.drop(drop_list, axis=1, inplace=True)
 
 
-# Adım 4: Encoding işlemlerini gerçekleştiriniz.
+# Encoding
 cat_cols, num_cols, cat_but_car = grab_col_names(df)
 
 from sklearn.preprocessing import MinMaxScaler, LabelEncoder, StandardScaler, RobustScaler
@@ -479,7 +485,7 @@ df = one_hot_encoder(df, cat_cols, drop_first=True)
 df.shape
 
 #############################################
-# GÖREV 3:  Model Kurma
+# MODEL
 #############################################
 # Veri setini test ve train olarak bölünüz
 train_df = df[df['SalePrice'].notnull()]
